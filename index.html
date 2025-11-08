@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfinia</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        
+        :root {
+            --primary-color: #4a69bd;
+            --secondary-color: #1e3799;
+            --light-grey: #f5f6fa;
+            --dark-grey: #718093;
+            --text-color: #2f3640;
+            --white-color: #ffffff;
+            --success-color: #2ecc71;
+            --danger-color: #e74c3c;
+            --warning-color: #f1c40f;
+            --info-color: #3498db;
+            --shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            --shadow-strong: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            background-color: var(--light-grey);
+            color: var(--text-color);
+            overflow-x: hidden;
+        }
+
+        
+        .hidden { display: none !important; }
+        
+        
+        .btn-action {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            color: var(--white-color);
+            margin-right: 5px;
+            transition: background-color 0.3s ease;
+        }
+        .btn-approve { background-color: var(--success-color); }
+        .btn-approve:hover { background-color: #27ae60; }
+        .btn-disapprove { background-color: var(--danger-color); }
+        .btn-disapprove:hover { background-color: #c0392b; }
+
+
+    
+        .splash-screen {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background-color:navy;
+            display: flex; justify-content: center; align-items: center; z-index: 10000;
+            animation: fadeOut 3s forwards; animation-delay: 1.5s;
+        }
+        .splash-logo img {
+            max-width: 300px; border-radius: 20px; animation: pulse 2s infinite;
+        }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; visibility: hidden; } }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+
+        
+        .login-page {
+            width: 100vw; height: 100vh; display: flex; justify-content: center; align-items: center;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        }
+        .login-container {
+            width: 90%; max-width: 450px; background: var(--white-color);
+            padding: 40px; border-radius: 15px; box-shadow: var(--shadow-strong); text-align: center;
+        }
+        .login-logo img { max-height: 200px; margin-bottom: 20px; }
+        .login-container h2 { margin-bottom: 25px; color: var(--text-color); font-weight: 500; }
+        .login-options button { width: 100%; padding: 15px; font-size: 1rem; border: none; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; margin-bottom: 15px; }
+        .btn-hr { background-color: var(--primary-color); color: var(--white-color); }
+        .btn-hr:hover { background-color: var(--secondary-color); }
+        .btn-employee { background-color: transparent; color: var(--primary-color); border: 2px solid var(--primary-color); }
+        .btn-employee:hover { background-color: var(--primary-color); color: var(--white-color); }
+        .login-form input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; }
+        .login-form .otp-group { display: flex; align-items: center; gap: 10px; }
+        .login-form .otp-group input { flex-grow: 1; }
+        .btn-submit { width: 100%; padding: 15px; font-size: 1rem; border: none; border-radius: 8px; cursor: pointer; background-color: var(--success-color); color: var(--white-color); transition: background-color 0.3s ease; }
+        .btn-submit:hover { background-color: #27ae60; }
+        .otp-display { background: #eaf2ff; padding: 10px; border-radius: 5px; margin-bottom: 15px; color: var(--secondary-color); font-weight: 500; border: 1px dashed var(--primary-color); }
+
+        
+        .dashboard { display: flex; height: 100vh; }
+        .sidebar { width: 260px; background: var(--secondary-color); color: var(--white-color); padding-top: 20px; position: fixed; height: 100%; left: -260px; transition: left 0.4s ease; z-index: 100; }
+        .sidebar.active { left: 0; }
+        .sidebar-header { text-align: center; padding: 0 20px 20px 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); position: relative; } /* Added position relative */
+        .sidebar-logo img { max-height: 40px; margin-bottom: 10px; }
+        .sidebar-header h3 { font-weight: 400; }
+        .sidebar-menu { list-style: none; }
+        .sidebar-menu li a { display: flex; align-items: center; gap: 15px; padding: 18px 25px; color: var(--white-color); text-decoration: none; transition: all 0.3s ease; border-left: 3px solid transparent; position: relative; }
+        .sidebar-menu li a:hover, .sidebar-menu li a.active { background: rgba(255, 255, 255, 0.1); border-left-color: var(--warning-color); }
+        .notification-badge { background-color: var(--danger-color); color: white; border-radius: 50%; padding: 2px 7px; font-size: 0.75rem; margin-left: auto; }
+        .main-content { flex-grow: 1; margin-left: 0; padding: 20px; width: 100%; transition: margin-left 0.4s ease; overflow-y: auto; height: 100vh; }
+        .main-content.shifted { margin-left: 260px; }
+        .header { display: flex; align-items: center; justify-content: space-between; background: var(--white-color); padding: 15px 20px; border-radius: 10px; box-shadow: var(--shadow); margin-bottom: 25px; }
+        .hamburger-menu { font-size: 1.5rem; cursor: pointer; }
+        .header-title { font-size: 1.5rem; font-weight: 500; color: var(--secondary-color); }
+        .user-profile { display: flex; align-items: center; gap: 10px; }
+        .user-profile img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; cursor: pointer; border: 2px solid var(--primary-color); }
+        .page-content { padding: 10px; }
+        
+        
+        .sidebar-close {
+            display: none;
+            position: absolute;
+            top: 5px;
+            right: 15px;
+            font-size: 2.5rem;
+            font-weight: 300;
+            cursor: pointer;
+            color: var(--white-color);
+        }
+
+        
+        .card-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+        .card { background: var(--white-color); padding: 25px; border-radius: 10px; box-shadow: var(--shadow); cursor: pointer; transition: transform 0.3s ease, box-shadow 0.3s ease; }
+        .card:hover { transform: translateY(-5px); box-shadow: var(--shadow-strong); }
+        .card h3 { margin-bottom: 10px; font-weight: 500; display: flex; align-items: center; gap: 10px; }
+        .card p { font-size: 2rem; font-weight: 700; color: var(--primary-color); }
+        .list-container { background: var(--white-color); padding: 25px; border-radius: 10px; box-shadow: var(--shadow); margin-top: 25px; }
+        .data-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .data-table th, .data-table td { padding: 15px; text-align: left; border-bottom: 1px solid #ddd; }
+        .data-table th { background-color: var(--light-grey); font-weight: 500; }
+        .data-table tr:hover { background-color: #f9f9f9; }
+        .data-table tr.clickable { cursor: pointer; }
+        .status-tag { padding: 5px 10px; border-radius: 15px; color: white; font-size: 0.8rem; text-align: center; }
+        .status-approved { background-color: var(--success-color); }
+        .status-pending { background-color: var(--warning-color); }
+        .status-rejected { background-color: var(--danger-color); }
+        
+        
+        .modal { position: fixed; z-index: 1001; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; }
+        .modal-content { background-color: white; padding: 30px; border-radius: 10px; width: 90%; max-width: 700px; position: relative; }
+        .close-button { position: absolute; top: 15px; right: 15px; font-size: 1.5rem; cursor: pointer; color: var(--dark-grey); }
+        .detail-view { display: grid; grid-template-columns: 1fr 2fr; gap: 15px 25px; align-items: center; }
+        .detail-view strong { font-size: 1.1rem; color: var(--secondary-color); justify-self: end; }
+        .detail-view span { font-size: 1.2rem; color: var(--text-color); }
+
+        
+        .perf-graph-container { margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee; }
+        .perf-graph { display: flex; align-items: flex-end; justify-content: space-around; height: 150px; border-left: 2px solid #ccc; border-bottom: 2px solid #ccc; padding: 10px; }
+        .perf-graph-bar { width: 40px; background-color: var(--primary-color); text-align: center; color: white; font-size: 0.8rem; position: relative; transition: height 0.5s ease; }
+        .perf-graph-bar span { position: absolute; bottom: -20px; width: 100%; left: 0; color: var(--text-color); }
+        .pie-chart-container { display: flex; justify-content: center; align-items: center; margin-top: 15px; }
+        .pie-chart { width: 150px; height: 150px; border-radius: 50%; display: grid; place-items: center; font-size: 1.5rem; font-weight: bold; }
+        .pie-chart-label { color: var(--secondary-color); }
+
+        
+        .chat-box { height: 400px; border: 1px solid #ddd; border-radius: 10px; padding: 15px; overflow-y: auto; margin-bottom: 15px; background: #f9f9f9; }
+        .chat-message { display: flex; margin-bottom: 15px; max-width: 80%; }
+        .chat-bubble { padding: 10px 15px; border-radius: 18px; line-height: 1.4; }
+        .chat-message.sent { margin-left: auto; flex-direction: row-reverse; }
+        .chat-message.sent .chat-bubble { background-color: var(--primary-color); color: white; border-bottom-right-radius: 4px; }
+        .chat-message.received .chat-bubble { background-color: var(--white-color); border: 1px solid #eee; border-bottom-left-radius: 4px; }
+        .chat-input { display: flex; gap: 10px; }
+        .chat-input input { flex-grow: 1; padding: 12px; border: 1px solid #ddd; border-radius: 20px; }
+        .chat-input button { padding: 12px 20px; border-radius: 20px; background-color: var(--primary-color); color: white; border: none; cursor: pointer; }
+
+        @media (max-width: 768px) {
+            .sidebar { box-shadow: 5px 0 15px rgba(0,0,0,0.2); }
+            .main-content.shifted { margin-left: 0; }
+            .header-title { display: none; }
+            .detail-view { grid-template-columns: 1fr; }
+            .detail-view strong { justify-self: start; }
+            .sidebar-close { display: block; } 
+        }
+    </style>
+</head>
+<body>
+
+    <input type="file" id="dp-upload" class="hidden" accept="image/*">
+
+    <div class="splash-screen" id="splash-screen"><div class="splash-logo"><img src="image.png" alt="App Logo"></div></div>
+    <div class="login-page hidden" id="login-page">
+        <div class="login-container">
+            <div class="login-logo"><img src="image.png" alt="App Logo Small"></div>
+            <h2>Welcome to Perfinia</h2>
+            <div id="login-options-container">
+                <p style="margin-bottom: 15px; color: var(--dark-grey);">Login as:</p>
+                <div class="login-options">
+                    <button class="btn-hr" onclick="showLoginForm('hr')">Admin / HR / Manager</button>
+                    <button class="btn-employee" onclick="showLoginForm('employee')">Employee</button>
+                </div>
+            </div>
+            <form class="login-form hidden" id="login-form" onsubmit="handleLogin(event)">
+                <h3 id="login-form-title">Login</h3><input type="hidden" id="login-type">
+                <input type="text" id="login-name" placeholder="Name" required><input type="email" id="login-email" placeholder="Email ID" required><input type="password" placeholder="Password" required>
+                <div class="otp-display hidden" id="otp-display">Your OTP is: <span id="otp-code"></span></div>
+                <div class="otp-group hidden" id="otp-group"><input type="text" id="otp-input" placeholder="Enter 4-Digit OTP" maxlength="4"><button type="submit" class="btn-submit">Submit OTP</button></div>
+                <button type="button" class="btn-submit" id="send-otp-btn" onclick="sendOtp()">Send OTP</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="dashboard hidden" id="hr-dashboard">
+        <nav class="sidebar" id="hr-sidebar">
+            <div class="sidebar-header">
+                <span class="sidebar-close" id="hr-sidebar-close">&times;</span> <div class="sidebar-logo"><img src="image.png" alt="Logo"></div><h3>HR Portal</h3>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="#" class="sidebar-link active" data-target="hr-view-dashboard">📈 Dashboard</a></li>
+                <li><a href="#" class="sidebar-link" data-target="hr-view-employee-management">👥 Employee Management</a></li>
+                <li><a href="#" class="sidebar-link" data-target="hr-view-leave-requests">✉️ Leave Requests <span class="notification-badge" id="hr-leave-notification"></span></a></li>
+                <li><a href="#" class="sidebar-link" data-target="hr-view-assign-tasks">📋 Assign Tasks</a></li>
+                <li><a href="#" class="sidebar-link" data-target="hr-view-progress-tracking">📊 Progress Tracking</a></li>
+                <li><a href="#" class="sidebar-link" data-target="hr-view-ai-tools">🤖 AI/Tools</a></li>
+
+                <li><a href="#" class="sidebar-link" data-target="hr-view-chat">💬 Chat <span class="notification-badge hidden" id="hr-chat-notification">1</span></a></li>
+                <li><a href="#" class="sidebar-link" data-target="hr-view-reports">📄 Generate Reports</a></li>
+                <li><a href="#" onclick="logout()">🚪 Logout</a></li>
+            </ul>
+        </nav>
+        <div class="main-content" id="hr-main-content">
+            <header class="header">
+                <span class="hamburger-menu" id="hr-hamburger">&#9776;</span><h1 class="header-title" id="hr-header-title">Dashboard</h1>
+                <div class="user-profile"><span id="hr-welcome-name">Welcome, Admin!</span><img src="image.png" alt="Admin Avatar" id="hr-avatar" onclick="triggerDpUpload('hr-avatar')"></div>
+            </header>
+            <main class="page-content" id="hr-page-content"></main>
+        </div>
+    </div>
+    
+    <div class="dashboard hidden" id="employee-dashboard">
+        <nav class="sidebar" id="employee-sidebar">
+            <div class="sidebar-header">
+                <span class="sidebar-close" id="employee-sidebar-close">&times;</span> <div class="sidebar-logo"><img src="image.png" alt="Logo"></div><h3>Employee Portal</h3>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="#" class="sidebar-link active" data-target="emp-view-dashboard">📈 Dashboard</a></li>
+                <li><a href="#" class="sidebar-link" data-target="emp-view-upload-task">📤 Upload Task Progress</a></li>
+                <li><a href="#" class="sidebar-link" data-target="emp-view-apply-leave">✈️ Apply for Leave</a></li>
+                <li><a href="#" class="sidebar-link" data-target="emp-view-mark-attendance">📍 Mark Attendance</a></li>
+                <li><a href="#" class="sidebar-link" data-target="emp-view-rewards">🏆 My Rewards</a></li>
+                
+                <li><a href="#" class="sidebar-link" data-target="emp-view-ai-tools">🤖 AI/Tools</a></li>
+
+                <li><a href="#" class="sidebar-link" data-target="emp-view-chat">💬 Chat</a></li>
+                <li><a href="#" class="sidebar-link" data-target="emp-view-profile">👤 My Profile</a></li>
+                <li><a href="#" onclick="logout()">🚪 Logout</a></li>
+            </ul>
+        </nav>
+        <div class="main-content" id="employee-main-content">
+            <header class="header">
+                <span class="hamburger-menu" id="employee-hamburger">&#9776;</span><h1 class="header-title" id="employee-header-title">Dashboard</h1>
+                <div class="user-profile"><span id="employee-welcome-name">Welcome!</span><img src="image.png" alt="Employee Avatar" id="employee-avatar" onclick="triggerDpUpload('employee-avatar')"></div>
+            </header>
+            <main class="page-content" id="employee-page-content"></main>
+        </div>
+    </div>
+
+    <div class="modal hidden" id="app-modal"><div class="modal-content" id="modal-content-area"></div></div>
+    
+    <script>
+        
+        let employees = [ { id: 'EMP001', name: 'Sohan', email: 'alice@example.com', role: 'Sr. Video Editor', progress: 85, onTime: true, task: 'Editing a marriage video', deadline: '2025-10-15', presentDays: 20, absentDays: 1, attendanceStatus: 'Present', performanceHistory: [70, 75, 80, 85], taskUploads: [{fileName: 'first_cut_final.mp4', date: '2025-09-25'}, {fileName: 'color_graded_v2.mp4', date: '2025-09-29'}] }, { id: 'EMP002', name: 'Rohan', email: 'bob@example.com', role: 'Lead App Developer', progress: 40, onTime: false, task: 'Making a Chatting application', deadline: '2025-09-30', presentDays: 18, absentDays: 3, attendanceStatus: 'Present', performanceHistory: [50, 45, 42, 40], taskUploads: [{fileName: 'wireframes_v1.pdf', date: '2025-09-10'}] }, { id: 'EMP003', name: 'Shashank', email: 'charlie@example.com', role: 'Game Developer', progress: 95, onTime: true, task: 'Making a mobile gaming application', deadline: '2025-11-01', presentDays: 21, absentDays: 0, attendanceStatus: 'Present', performanceHistory: [80, 88, 90, 95], taskUploads: [{fileName: 'game_asset_pack.zip', date: '2025-09-20'}, {fileName: 'alpha_build_0.1.apk', date: '2025-09-28'}] }, { id: 'EMP004', name: 'Shivansh', email: 'diana@example.com', role: 'VFX Artist', progress: 60, onTime: true, task: 'Photo Editing of a Blockbuster film', deadline: '2025-10-20', presentDays: 19, absentDays: 2, attendanceStatus: 'Absent', performanceHistory: [55, 65, 62, 60], taskUploads: [] }, { id: 'EMP005', name: 'Vansh', email: 'ethan@example.com', role: 'Backend Developer', progress: 75, onTime: true, task: 'Develop a new E-commerce website', deadline: '2025-11-10', presentDays: 20, absentDays: 1, attendanceStatus: 'Present', performanceHistory: [60, 65, 70, 75], taskUploads: [{fileName: 'database_schema.sql', date: '2025-09-22'}] }, { id: 'EMP006', name: 'Ayush', email: 'fiona@example.com', role: 'Marketing Head', progress: 90, onTime: true, task: 'Create Q4 Marketing Campaign visuals', deadline: '2025-10-25', presentDays: 21, absentDays: 0, attendanceStatus: 'Present', performanceHistory: [80, 82, 88, 90], taskUploads: [{fileName: 'campaign_brief.docx', date: '2025-09-18'}] }, { id: 'EMP007', name: 'Siddharth', email: 'george@example.com', role: 'UI/UX Designer', progress: 55, onTime: false, task: 'Redesign company landing page', deadline: '2025-09-28', presentDays: 17, absentDays: 4, attendanceStatus: 'Absent', performanceHistory: [70, 65, 60, 55], taskUploads: [] }, { id: 'EMP008', name: 'Anamika', email: 'harry@example.com', role: 'Jr. App Developer', progress: 88, onTime: true, task: 'Fix bugs in Chatting application', deadline: '2025-10-05', presentDays: 20, absentDays: 1, attendanceStatus: 'Present', performanceHistory: [75, 80, 85, 88], taskUploads: [{fileName: 'bugfix_patch_1.zip', date: '2025-09-29'}] }, { id: 'EMP009', name: 'Rohini', email: 'iris@example.com', role: 'Content Writer', progress: 92, onTime: true, task: 'Write blog posts for Q4', deadline: '2025-10-30', presentDays: 21, absentDays: 0, attendanceStatus: 'Present', performanceHistory: [85, 88, 90, 92], taskUploads: [{fileName: 'blog_post_drafts.docx', date: '2025-09-26'}] }, { id: 'EMP010', name: 'Pooja', email: 'jack@example.com', role: 'SEO Specialist', progress: 78, onTime: true, task: 'Improve website ranking', deadline: '2025-11-05', presentDays: 19, absentDays: 2, attendanceStatus: 'Present', performanceHistory: [70, 72, 75, 78], taskUploads: [{fileName: 'keyword_research.xlsx', date: '2025-09-24'}] } ];
+        let leaveRequests = [ { id: 1, employeeName: 'Rohan', reason: 'Family emergency', status: 'Pending' }, { id: 2, employeeName: 'Shivansh', reason: 'Personal leave', status: 'Pending' }, {id: 3, employeeName: 'Siddharth', reason: 'Vacation', status: 'Approved'} ];
+        let chatHistory = [ { sender: 'Sohan', message: 'Hi! Just wanted to let you know I\'ve uploaded the final cut for the wedding video project.', timestamp: '10:30 AM', type: 'received' }, { sender: 'HR', message: 'Excellent, Alice! Thank you for the update. I will review it shortly.', timestamp: '10:32 AM', type: 'sent' }, { sender: 'Sohan', message: 'Great, let me know if any revisions are needed.', timestamp: '10:33 AM', type: 'received' } ];
+
+
+        const GEMINI_API_KEY = 'AIzaSyAEkrlJZyUC_3MebzbaBlUEHN4xiARG1xw'; 
+        const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
+
+        
+        document.addEventListener('DOMContentLoaded', () => { 
+            setTimeout(() => { 
+                document.getElementById('splash-screen').classList.add('hidden');
+                document.getElementById('login-page').classList.remove('hidden'); 
+            }, 3000); 
+            setupHamburger('hr-hamburger', 'hr-sidebar', 'hr-main-content'); 
+            setupHamburger('employee-hamburger', 'employee-sidebar', 'employee-main-content'); 
+            setupSidebarLinks('hr-sidebar', renderHrContent); 
+            setupSidebarLinks('employee-sidebar', renderEmployeeContent); 
+            document.getElementById('dp-upload').addEventListener('change', handleDpChange); 
+        });
+        const showPage = (pageId) => { document.querySelectorAll('.login-page, .dashboard').forEach(page => page.classList.add('hidden')); document.getElementById(pageId).classList.remove('hidden'); };
+        const showLoginForm = (type) => { 
+            document.getElementById('login-options-container').classList.add('hidden'); 
+            const form = document.getElementById('login-form'); 
+            form.classList.remove('hidden'); 
+            document.getElementById('login-type').value = type; 
+            document.getElementById('login-form-title').innerText = (type === 'hr') ? 'Admin / HR Login' : 'Employee Login'; 
+        };
+
+        
+        let currentOtp = '', currentUserName = '', currentAvatarTarget = '';
+        const sendOtp = () => { 
+            currentUserName = document.getElementById('login-name').value; 
+            if (!currentUserName) { alert('Please enter your name first.'); return; } 
+            
+            const loginType = document.getElementById('login-type').value;
+            
+            currentOtp = Math.floor(1000 + Math.random() * 9000).toString(); 
+            document.getElementById('send-otp-btn').classList.add('hidden'); 
+            document.getElementById('otp-display').classList.remove('hidden'); 
+            document.getElementById('otp-code').innerText = currentOtp; 
+            document.getElementById('otp-group').classList.remove('hidden'); 
+            document.getElementById('login-name').setAttribute('disabled', 'true');
+            document.getElementById('login-email').setAttribute('disabled', 'true');
+            document.querySelector('#login-form input[type="password"]').setAttribute('disabled', 'true');
+            document.getElementById('otp-input').focus();
+        };
+        const handleLogin = (e) => { 
+            e.preventDefault(); 
+            const enteredOtp = document.getElementById('otp-input').value; 
+            if (enteredOtp !== currentOtp) { alert('Invalid OTP.'); return; } 
+            
+            const loginType = document.getElementById('login-type').value; 
+            
+            
+            document.getElementById('login-name').removeAttribute('disabled');
+            document.getElementById('login-email').removeAttribute('disabled');
+            document.querySelector('#login-form input[type="password"]').removeAttribute('disabled');
+            
+            if (loginType === 'hr') { 
+                showPage('hr-dashboard'); 
+                document.getElementById('hr-welcome-name').innerText = `Welcome, ${currentUserName}!`; 
+                renderHrContent('hr-view-dashboard'); 
+            } else { 
+                showPage('employee-dashboard'); 
+                document.getElementById('employee-welcome-name').innerText = `Welcome, ${currentUserName}!`; 
+                renderEmployeeContent('emp-view-dashboard'); 
+            }
+            
+            document.getElementById('login-form').reset();
+            document.getElementById('login-form').classList.add('hidden');
+            document.getElementById('login-options-container').classList.remove('hidden');
+            document.getElementById('send-otp-btn').classList.remove('hidden');
+            document.getElementById('otp-group').classList.add('hidden');
+            document.getElementById('otp-display').classList.add('hidden');
+            currentOtp = '';
+        };
+        const logout = () => { 
+            document.getElementById('login-form').reset(); 
+            document.getElementById('login-form').classList.add('hidden'); 
+            document.getElementById('login-options-container').classList.remove('hidden'); 
+            document.getElementById('send-otp-btn').classList.remove('hidden'); 
+            document.getElementById('otp-group').classList.add('hidden'); 
+            document.getElementById('otp-display').classList.add('hidden'); 
+            showPage('login-page'); 
+        };
+        const triggerDpUpload = (avatarId) => { currentAvatarTarget = avatarId; document.getElementById('dp-upload').click(); };
+        const handleDpChange = (event) => { const file = event.target.files[0]; if (file && currentAvatarTarget) { const reader = new FileReader(); reader.onload = (e) => { document.getElementById(currentAvatarTarget).src = e.target.result; }; reader.readAsDataURL(file); } };
+
+        
+        const setupHamburger = (ham, side, main) => {
+            const sidebar = document.getElementById(side);
+            const mainContent = document.getElementById(main);
+            
+            document.getElementById(ham).addEventListener('click', () => { 
+                sidebar.classList.toggle('active'); 
+                if (window.innerWidth > 768) mainContent.classList.toggle('shifted');
+            });
+            
+            document.getElementById(`${side}-close`).addEventListener('click', () => {
+                sidebar.classList.remove('active');
+                if (window.innerWidth > 768) mainContent.classList.remove('shifted');
+            });
+        };
+        const setupSidebarLinks = (sidebarId, renderFunction) => { 
+            document.querySelectorAll(`#${sidebarId} .sidebar-link`).forEach(link => { 
+                link.addEventListener('click', (e) => { 
+                    e.preventDefault(); 
+                    if (e.currentTarget.innerText.trim().toLowerCase().includes('logout')) return; 
+                    document.querySelectorAll(`#${sidebarId} .sidebar-link`).forEach(l => l.classList.remove('active')); 
+                    e.currentTarget.classList.add('active'); 
+                    renderFunction(e.currentTarget.getAttribute('data-target')); 
+                    const sidebar = document.getElementById(sidebarId); 
+                    if (sidebar.classList.contains('active') && window.innerWidth <= 768) { 
+                        sidebar.classList.remove('active'); 
+                    } 
+                }); 
+            }); 
+        };
+        const showModal = (content) => { document.getElementById('modal-content-area').innerHTML = content; document.getElementById('app-modal').classList.remove('hidden'); };
+        const closeModal = () => document.getElementById('app-modal').classList.add('hidden');
+
+    
+        const renderHrContent = (view) => {
+            const contentArea = document.getElementById('hr-page-content');
+            let title = 'Dashboard'; let html = '';
+            const pendingLeaves = leaveRequests.filter(r => r.status === 'Pending').length;
+            document.getElementById('hr-leave-notification').innerText = pendingLeaves > 0 ? pendingLeaves : '';
+            if (document.getElementById('hr-leave-notification').innerText === '') document.getElementById('hr-leave-notification').classList.add('hidden');
+            else document.getElementById('hr-leave-notification').classList.remove('hidden');
+
+            switch(view) {
+                case 'hr-view-dashboard': title = 'Dashboard'; html = `<div class="card-container"><div class="card" onclick="renderHrContent('hr-view-employee-management')"><h3>👥 Total Employees</h3><p>${employees.length}</p></div><div class="card" onclick="renderHrContent('hr-view-attendance')"><h3>✔️ Attendance Today</h3><p>${employees.filter(e => e.attendanceStatus === 'Present').length} / ${employees.length}</p></div><div class="card" onclick="renderHrContent('hr-view-leave-requests')"><h3>✉️ Pending Leaves</h3><p>${pendingLeaves}</p></div></div><div class="list-container" style="margin-top: 25px;"><h3>At-a-Glance Progress</h3>${employees.slice(0, 5).map(emp => `<div>${emp.name}: ${emp.progress}%</div>`).join('<hr style="margin: 10px 0; border: 0; border-top: 1px solid #eee;">')}<p style="margin-top: 10px; color: var(--dark-grey);">Showing 5 of ${employees.length} employees. See Progress Tracking for more.</p></div>`; break;
+                case 'hr-view-employee-management': title = 'Employee Management'; html = `<div class="list-container"><h3>All Employees</h3><input type="text" placeholder="Search by name..." style="width:100%; padding:10px; margin: 10px 0; border-radius: 8px; border: 1px solid #ddd;" onkeyup="filterEmployees(event)"><table class="data-table" id="employee-management-table"><thead><tr><th>ID</th><th>Name</th><th>Role</th><th>Status</th></tr></thead><tbody>${employees.map(emp => `<tr class="clickable" onclick="showEmployeeDetailModal('${emp.id}')"><td>${emp.id}</td><td>${emp.name}</td><td>${emp.role}</td><td><span class="status-tag ${emp.onTime ? 'status-approved' : 'status-rejected'}">${emp.onTime ? 'On Track' : 'Delayed'}</span></td></tr>`).join('')}</tbody></table></div>`; break;
+                case 'hr-view-attendance': title = 'Today\'s Attendance'; html = `<div class="list-container"><h3>Present Employees (${employees.filter(e=>e.attendanceStatus==='Present').length})</h3><ul>${employees.filter(e=>e.attendanceStatus==='Present').map(emp => `<li>${emp.name} (${emp.role})</li>`).join('')}</ul><h3 style="margin-top: 20px;">Absent Employees (${employees.filter(e=>e.attendanceStatus==='Absent').length})</h3><ul>${employees.filter(e=>e.attendanceStatus==='Absent').map(emp => `<li>${emp.name} (${emp.role})</li>`).join('')}</ul></div>`; break;
+                case 'hr-view-progress-tracking': title = 'Progress Tracking'; html = `<div class="list-container"><h3>Select an employee to view their detailed progress report.</h3><table class="data-table"><thead><tr><th>Name</th><th>Task Assigned</th><th>Progress</th></tr></thead><tbody>${employees.map(emp => `<tr class="clickable" onclick="showEmployeeDetailModal('${emp.id}', true)"><td>${emp.name}</td><td>${emp.task}</td><td><div style="width: 100%; background: #eee; border-radius: 5px;"><div style="width: ${emp.progress}%; background: ${emp.onTime ? 'var(--success-color)' : 'var(--danger-color)'}; color: white; text-align: center; border-radius: 5px;">${emp.progress}%</div></div></td></tr>`).join('')}</tbody></table></div>`; break;
+                case 'hr-view-leave-requests': title = 'Leave Requests'; html = `<div class="list-container">${generateLeaveTable()}</div>`; break;
+                case 'hr-view-assign-tasks': title = 'Assign Tasks'; html = `<div class="list-container"><h3>Assign a New Task</h3><p>Select a task, an employee, and set a deadline to assign new work.</p><div style="display:flex; flex-direction:column; gap:15px; margin-top:20px;"><select style="padding:12px; border: 1px solid #ddd; border-radius: 8px;"><option>Select Task...</option><option>New Client Video Project</option><option>Update Mobile App UI</option></select><select style="padding:12px; border: 1px solid #ddd; border-radius: 8px;"><option>Select Employee...</option>${employees.map(e=>`<option>${e.name}</option>`).join('')}</select><input type="date" style="padding:12px; border: 1px solid #ddd; border-radius: 8px;"><button class="btn-submit" onclick="alert('Task Assigned!')">Assign</button></div></div>`; break;
+                case 'hr-view-ai-tools': 
+                    title = 'AI/Tools';
+                    html = renderAiToolsContent('HR/Manager');
+                    break;
+                case 'hr-view-chat': title = 'Chat'; html = `<div class="list-container"><h3>Chat with Sohan</h3><div class="chat-box">${chatHistory.map(msg => `<div class="chat-message ${msg.type}"><div class="chat-bubble">${msg.message}</div></div>`).join('')}</div><div class="chat-input"><input type="text" placeholder="Type a message..." style="flex-grow: 1; padding: 12px; border: 1px solid #ddd; border-radius: 20px;"><button style="padding: 12px 20px; border-radius: 20px; background-color: var(--primary-color); color: white; border: none; cursor: pointer;">Send</button></div></div>`; break;
+                case 'hr-view-reports': title = 'Generate Reports'; html = `<div class="list-container"><h3>Reports Center</h3><p>Generate and download reports on employee performance and attendance.</p><div style="margin-top:20px; display:flex; gap:15px;"><button class="btn-submit" onclick="alert('Generating Performance_Report_Q3.pdf...')">Download Performance Report (PDF)</button><button class="btn-submit" style="background-color: var(--info-color);" onclick="alert('Generating Attendance_Log.csv...')">Download Attendance Log (CSV)</button></div></div>`; break;
+            }
+            contentArea.innerHTML = html; document.getElementById('hr-header-title').innerText = title;
+        };
+        const filterEmployees = (e) => { const term = e.target.value.toLowerCase(); const rows = document.querySelectorAll('#employee-management-table tbody tr'); rows.forEach(row => { const name = row.cells[1].innerText.toLowerCase(); row.style.display = name.includes(term) ? '' : 'none'; }); };
+        const generateLeaveTable = () => { return `<h3>All Leave Applications</h3><table class="data-table"><thead><tr><th>Employee Name</th><th>Reason</th><th>Status</th><th>Actions</th></tr></thead><tbody>${leaveRequests.map(req => `<tr id="leave-row-${req.id}"><td>${req.employeeName}</td><td>${req.reason}</td><td><span class="status-tag status-${req.status.toLowerCase()}">${req.status}</span></td><td class="action-buttons">${req.status === 'Pending' ? `<button class="btn-action btn-approve" onclick="handleLeave(${req.id}, 'Approved')">Approve</button><button class="btn-action btn-disapprove" onclick="handleLeave(${req.id}, 'Rejected')">Reject</button>` : `<span>-</span>`}</td></tr>`).join('')}</tbody></table>`; };
+        const handleLeave = (reqId, status) => { const req = leaveRequests.find(r => r.id === reqId); req.status = status; renderHrContent('hr-view-leave-requests'); };
+        const showEmployeeDetailModal = (empId, showGraph = false) => { const emp = employees.find(e => e.id === empId); const graphHtml = showGraph ? `<div class="perf-graph-container"><h4>Performance Last 4 Weeks</h4><div class="perf-graph">${emp.performanceHistory.map((p, i) => `<div class="perf-graph-bar" style="height: ${p}%;">${p}%<span>Week ${i+1}</span></div>`).join('')}</div></div>` : ''; const modalHTML = `<span class="close-button" onclick="closeModal()">&times;</span><h2>${emp.name}</h2><div class="detail-view"><strong>ID:</strong><span>${emp.id}</span><strong>Role:</strong><span>${emp.role}</span><strong>Task:</strong><span>${emp.task}</span><strong>Deadline:</strong><span>${emp.deadline}</span><strong>Present:</strong><span>${emp.presentDays} days</span><strong>Absent:</strong><span>${emp.absentDays} days</span></div>${graphHtml}`; showModal(modalHTML); };
+
+        
+        const markAttendance = () => {
+            const btn = document.getElementById('mark-attendance-btn');
+            
+            const isSuccess = Math.random() > 0.1;
+
+            if (btn.disabled) return; 
+
+            if (isSuccess) {
+                btn.style.backgroundColor = 'var(--success-color)';
+                btn.innerText = 'Attendance Marked Successfully';
+                btn.disabled = true;
+                setTimeout(() => alert('Your Attendance is marked successfully!'), 100);
+            } else {
+                btn.style.backgroundColor = 'var(--danger-color)';
+                btn.innerText = 'Marking Failed - Try Again Later';
+                btn.disabled = true;
+                setTimeout(() => alert('Your Attendance was not marked. Please check your connection or contact HR.'), 100);
+            }
+        };
+
+        
+        const renderAiToolsContent = (userType) => {
+            let placeholderText = (userType === 'HR/Manager') 
+                ? 'e.g., Draft a concise company policy update on remote work.' 
+                : 'e.g., Summarize the latest project report.';
+            let description = (userType === 'HR/Manager')
+                ? 'Use the assistant to draft communications, summarize reports, or create job descriptions.'
+                : 'Use the assistant to generate summaries, draft emails, or get quick help on your tasks.';
+
+            return `
+                <div class="list-container">
+                    <h3>🤖 AI Productivity Assistant for ${userType}</h3>
+                    <p style="margin-bottom: 20px; color: var(--dark-grey);">${description}</p>
+
+                    <div style="display:flex; flex-direction:column; gap:15px; margin-top:20px;">
+                        <input type="text" id="ai-tool-input" placeholder="${placeholderText}" style="width:100%; padding:12px; border: 1px solid #ddd; border-radius: 8px;">
+                        <button class="btn-submit" id="ai-tool-submit" style="background-color: var(--secondary-color);" onclick="runAiTool()">Generate Output</button>
+                    </div>
+
+                    <div id="ai-tool-output-box" class="list-container" style="margin-top: 30px; border: 1px dashed var(--primary-color); min-height: 100px; padding: 20px; background: #eaf2ff; cursor: default;">
+                        <p style="color: var(--dark-grey);">Your AI-generated response will appear here. **(Remember to replace 'YOUR_API_KEY_HERE' in the script with a real key for live results)**</p>
+                    </div>
+                </div>
+            `;
+        };
+
+    
+        const runAiTool = async () => {
+            const inputField = document.getElementById('ai-tool-input');
+            const outputBox = document.getElementById('ai-tool-output-box');
+            const submitBtn = document.getElementById('ai-tool-submit');
+            const prompt = inputField.value.trim();
+
+            if (!prompt) {
+                alert('Please enter a prompt for the AI assistant.');
+                return;
+            }
+            if (GEMINI_API_KEY === 'YOUR_API_KEY_HERE') {
+                 outputBox.innerHTML = '<p style="color: var(--danger-color); font-weight: 500;">❌ API Key Missing: Please replace "YOUR_API_KEY_HERE" in the script with your real key to proceed.</p>';
+                 return;
+            }
+
+        
+            outputBox.innerHTML = '<p style="color: var(--primary-color); font-weight: 500;">⏳ Contacting AI server... Please wait.</p>';
+            submitBtn.disabled = true;
+            submitBtn.innerText = 'Generating...';
+
+            
+            const payload = {
+                contents: [{
+                    parts: [{
+                        text: prompt
+                    }]
+                }]
+            };
+
+            try {
+                const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+
+            
+                let generatedText = 'Error: No response text found.';
+                outputBox.style.background = '#eaf2ff'; 
+
+                if (data.candidates && data.candidates.length > 0 && data.candidates[0].content.parts.length > 0) {
+                    generatedText = data.candidates[0].content.parts[0].text;
+                } else if (data.error) {
+                    generatedText = `API Error (${data.error.code}): ${data.error.message}`;
+                    outputBox.style.background = '#ffebeb'; 
+                } else if (!response.ok) {
+                    generatedText = `HTTP Error: ${response.status} ${response.statusText}`;
+                    outputBox.style.background = '#ffebeb';
+                }
+                
+                
+                outputBox.innerHTML = `
+                    <h4 style="color: var(--secondary-color); margin-bottom: 10px;">✅ AI Generated Output:</h4>
+                    <p style="white-space: pre-wrap;">${generatedText}</p>
+                `;
+
+            } catch (error) {
+                
+                outputBox.innerHTML = `<p style="color: var(--danger-color); font-weight: 500;">❌ Network Error: Could not reach the API service.</p>`;
+                outputBox.style.background = '#ffebeb';
+            }
+
+    
+            submitBtn.disabled = false;
+            submitBtn.innerText = 'Generate Output';
+        };
+        
+        
+        const renderEmployeeContent = (view) => {
+            const contentArea = document.getElementById('employee-page-content');
+            
+            const empData = employees.find(e => e.name === currentUserName) || employees.find(e => e.id === 'EMP001');
+            let title = 'Dashboard'; let html = '';
+            
+            switch(view) {
+                case 'emp-view-dashboard': title = 'Dashboard'; html = `<div class="card-container"><div class="card"><h3>📋 My Current Task</h3><p style="font-size: 1.2rem; font-weight: 500;">${empData.task}</p><p style="font-size: 1rem; color: var(--danger-color); font-weight: 400;">Deadline: ${empData.deadline}</p></div><div class="card"><h3>📊 My Performance</h3><div class="pie-chart-container"><div class="pie-chart" style="background: conic-gradient(var(--primary-color) ${empData.progress}%, var(--light-grey) ${empData.progress}%);"><span class="pie-chart-label">${empData.progress}%</span></div></div></div><div class="card"><h3>✔️ My Attendance</h3><p>${Math.round((empData.presentDays / (empData.presentDays + empData.absentDays)) * 100)}%</p><p style="font-size: 1rem; color: var(--dark-grey); font-weight: 400;">Present: ${empData.presentDays}, Absent: ${empData.absentDays}</p></div></div>`; break;
+                case 'emp-view-profile': title = 'My Profile'; html = `<div class="list-container"><div class="detail-view" style="line-height: 2;"><strong>Name:</strong><span> ${empData.name}</span><strong>ID:</strong><span> ${empData.id}</span><strong>Email:</strong><span> ${empData.email}</span><strong>Role:</strong><span> ${empData.role}</span></div></div>`; break;
+                case 'emp-view-upload-task': title = 'Upload Task Progress'; html = `<div class="list-container"><h3>Upload for: ${empData.task}</h3><input type="file" style="width:100%; padding:10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px;"><button class="btn-submit" onclick="alert('File uploaded!')">Upload File</button><h3 style="margin-top: 30px;">Submission History</h3><table class="data-table"><thead><tr><th>File Name</th><th>Date Uploaded</th></tr></thead><tbody>${empData.taskUploads.length > 0 ? empData.taskUploads.map(up => `<tr><td>${up.fileName}</td><td>${up.date}</td></tr>`).join('') : `<tr><td colspan="2">No files uploaded yet.</td></tr>`}</tbody></table></div>`; break;
+                case 'emp-view-apply-leave': title = 'Apply for Leave'; html = `<div class="list-container"><h3>New Leave Application</h3><div style="display:flex; flex-direction:column; gap:15px; margin-top:20px;"><input type="text" placeholder="Reason for leave..." style="padding:12px; border: 1px solid #ddd; border-radius: 8px;"><label>Start Date:</label><input type="date" style="padding:12px; border: 1px solid #ddd; border-radius: 8px;"><label>End Date:</label><input type="date" style="padding:12px; border: 1px solid #ddd; border-radius: 8px;"><button class="btn-submit" onclick="alert('Leave request submitted!')">Submit Request</button></div><h3 style="margin-top: 30px;">Leave History</h3><table class="data-table"><thead><tr><th>Reason</th><th>Status</th></tr></thead><tbody><tr><td>Vacation</td><td><span class="status-tag status-approved">Approved</span></td></tr><tr><td>Sick Leave</td><td><span class="status-tag status-approved">Approved</span></td></tr></tbody></table></div>`; break;
+                case 'emp-view-mark-attendance':
+                    title = 'Mark Attendance';
+                    const now = new Date(); 
+                    const formattedDate = now.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+                    const formattedTime = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+                    html = `<div class="list-container" style="text-align: center;"><h3>Mark Your Attendance for Today</h3><div style="font-size: 1.3rem; margin-top: 25px; padding: 25px; background: #f9f9f9; border-radius: 8px; line-height: 2; display: inline-block; text-align: left; border: 1px solid #eee;"><p><strong><span style="font-size: 1.5rem;">📅</span> Date:</strong> ${formattedDate}</p><p><strong><span style="font-size: 1.5rem;">🕒</span> Time:</strong> ${formattedTime} IST</p><p><strong><span style="font-size: 1.5rem;">📍</span> Current Location:</strong> Meerut, Uttar Pradesh, India</p><p style="color: var(--success-color); font-weight: 500; margin-top: 10px;"><strong>Status:</strong> ✔️ Location Verified</p></div><div style="text-align: center; margin-top: 35px;"><button id="mark-attendance-btn" class="btn-submit" style="padding: 18px 40px; font-size: 1.25rem; background-color: var(--primary-color); border-radius: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);" onclick="markAttendance()">Mark Present</button></div></div>`;
+                    break;
+                case 'emp-view-ai-tools': 
+                    title = 'AI/Tools';
+                    html = renderAiToolsContent('Employee');
+                    break;
+                case 'emp-view-chat': title = 'Chat'; html = `<div class="list-container"><h3>Chat with HR</h3><div class="chat-box">${chatHistory.map(msg => `<div class="chat-message ${msg.type === 'sent' ? 'received' : 'sent'}"><div class="chat-bubble">${msg.message}</div></div>`).join('')}</div><div class="chat-input"><input type="text" placeholder="Type a message..." style="flex-grow: 1; padding: 12px; border: 1px solid #ddd; border-radius: 20px;"><button style="padding: 12px 20px; border-radius: 20px; background-color: var(--primary-color); color: white; border: none; cursor: pointer;">Send</button></div></div>`; break;
+                case 'emp-view-rewards': title = 'My Rewards'; html = `<div class="list-container"><h3>Your Achievements</h3><div class="card" style="margin-top: 15px; cursor: default;"><h4>🏆 Employee of the Month</h4><p style="font-size: 1rem; color: var(--dark-grey); font-weight: 400;">Awarded: Sept 2025</p></div><div class="card" style="margin-top: 15px; cursor: default;"><h4>⭐ Project Excellence Award</h4><p style="font-size: 1rem; color: var(--dark-grey); font-weight: 400;">Awarded: July 2025</p></div></div>`; break;
+            }
+            contentArea.innerHTML = html; document.getElementById('employee-header-title').innerText = title;
+        };
+    </script>
+</body>
+</html>
