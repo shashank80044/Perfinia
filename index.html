@@ -455,7 +455,7 @@
                     </div>
 
                     <div id="ai-tool-output-box" class="list-container" style="margin-top: 30px; border: 1px dashed var(--primary-color); min-height: 100px; padding: 20px; background: #eaf2ff; cursor: default;">
-                        <p style="color: var(--dark-grey);">Your AI-generated response will appear here. **(Remember to replace 'YOUR_API_KEY_HERE' in the script with a real key for live results)**</p>
+                        <p style="color: var(--dark-grey);"></p>
                     </div>
                 </div>
             `;
@@ -473,7 +473,7 @@
                 return;
             }
             if (GEMINI_API_KEY === 'YOUR_API_KEY_HERE') {
-                 outputBox.innerHTML = '<p style="color: var(--danger-color); font-weight: 500;">❌ API Key Missing: Please replace "YOUR_API_KEY_HERE" in the script with your real key to proceed.</p>';
+                 outputBox.innerHTML = '<p style="color: var(--danger-color); font-weight: 500;"></p>';
                  return;
             }
 
@@ -563,4 +563,5 @@
         };
     </script>
 </body>
+
 </html>
